@@ -1,0 +1,6 @@
+{
+  "name": "YouTube Clone",
+  "description": "A feature-rich YouTube clone with user profiles, video uploading, comments, subscription feed, Shorts, and AI video helpers.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
