@@ -1,20 +1,31 @@
 import React from 'react';
 import { 
-  Home, 
-  Flame, 
-  Tv, 
-  Library, 
   History, 
-  Video as VideoIcon, 
-  ThumbsUp, 
   Clock, 
-  Compass, 
-  Sparkles, 
-  UserCheck,
-  ChevronRight,
-  Settings
+  ThumbsUp, 
+  ListVideo, 
+  PlaySquare, 
+  ChevronRight, 
+  Flame, 
+  Music2, 
+  Gamepad2, 
+  Newspaper, 
+  Trophy, 
+  Radio, 
+  Settings, 
+  Flag, 
+  HelpCircle, 
+  MessageSquare,
+  Sparkles,
+  Radio as LiveIcon
 } from 'lucide-react';
 import { ActiveTab, Channel } from '../types';
+import { 
+  YouTubeHomeIcon, 
+  YouTubeShortsLogo, 
+  YouTubeSubscriptionsIcon, 
+  YouTubeYouIcon 
+} from './YouTubeIcons';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -33,136 +44,205 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectChannel,
   activeChannelId
 }) => {
-  const mainNav = [
-    { id: 'home' as ActiveTab, label: 'Home', icon: Home },
-    { id: 'shorts' as ActiveTab, label: 'Shorts', icon: Flame },
-    { id: 'subscriptions' as ActiveTab, label: 'Subscriptions', icon: Tv },
-  ];
-
-  const libraryNav = [
-    { id: 'library' as ActiveTab, label: 'You / Library', icon: Library },
-    { id: 'history' as ActiveTab, label: 'History', icon: History },
-    { id: 'liked' as ActiveTab, label: 'Liked Videos', icon: ThumbsUp },
-  ];
-
+  // Collapsed Mini Guide (72px)
   if (isCollapsed) {
     return (
-      <aside id="youtube-sidebar-collapsed" className="sticky top-14 left-0 h-[calc(100vh-3.5rem)] w-18 bg-white border-r border-neutral-200 flex flex-col items-center py-2 z-30 shrink-0">
-        {mainNav.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl my-0.5 transition-colors ${
-                isActive ? 'bg-neutral-100 text-red-600 font-semibold' : 'text-neutral-700 hover:bg-neutral-50'
-              }`}
-            >
-              <Icon className="w-5 h-5 mb-1" />
-              <span className="text-[10px] tracking-tight">{item.label}</span>
-            </button>
-          );
-        })}
-        
-        <div className="w-8 border-t border-neutral-200 my-2" />
+      <aside 
+        id="youtube-sidebar-mini" 
+        className="sticky top-14 left-0 h-[calc(100vh-3.5rem)] w-[72px] bg-white flex flex-col items-center py-1 z-30 shrink-0 select-none overflow-y-auto no-scrollbar"
+      >
+        <button
+          onClick={() => setActiveTab('home')}
+          className={`flex flex-col items-center justify-center w-16 h-[74px] rounded-xl my-0.5 transition-colors cursor-pointer ${
+            activeTab === 'home' ? 'font-medium text-[#0f0f0f]' : 'text-[#0f0f0f] hover:bg-[#f2f2f2]'
+          }`}
+          title="Home"
+        >
+          <YouTubeHomeIcon className="w-6 h-6 mb-1.5" filled={activeTab === 'home'} />
+          <span className="text-[10px] tracking-tight">Home</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('shorts')}
+          className={`flex flex-col items-center justify-center w-16 h-[74px] rounded-xl my-0.5 transition-colors cursor-pointer ${
+            activeTab === 'shorts' ? 'font-medium text-[#0f0f0f]' : 'text-[#0f0f0f] hover:bg-[#f2f2f2]'
+          }`}
+          title="Shorts"
+        >
+          <YouTubeShortsLogo className="w-6 h-6 mb-1.5" />
+          <span className="text-[10px] tracking-tight">Shorts</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('subscriptions')}
+          className={`flex flex-col items-center justify-center w-16 h-[74px] rounded-xl my-0.5 transition-colors cursor-pointer ${
+            activeTab === 'subscriptions' ? 'font-medium text-[#0f0f0f]' : 'text-[#0f0f0f] hover:bg-[#f2f2f2]'
+          }`}
+          title="Subscriptions"
+        >
+          <YouTubeSubscriptionsIcon className="w-6 h-6 mb-1.5" filled={activeTab === 'subscriptions'} />
+          <span className="text-[10px] tracking-tight">Subscriptions</span>
+        </button>
 
         <button
           onClick={() => setActiveTab('library')}
-          className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl my-0.5 transition-colors ${
+          className={`flex flex-col items-center justify-center w-16 h-[74px] rounded-xl my-0.5 transition-colors cursor-pointer ${
             activeTab === 'library' || activeTab === 'history' || activeTab === 'liked'
-              ? 'bg-neutral-100 text-red-600 font-semibold'
-              : 'text-neutral-700 hover:bg-neutral-50'
+              ? 'font-medium text-[#0f0f0f]'
+              : 'text-[#0f0f0f] hover:bg-[#f2f2f2]'
           }`}
+          title="You"
         >
-          <Library className="w-5 h-5 mb-1" />
+          <YouTubeYouIcon className="w-6 h-6 mb-1.5" filled={activeTab === 'library' || activeTab === 'history' || activeTab === 'liked'} />
           <span className="text-[10px] tracking-tight">You</span>
         </button>
       </aside>
     );
   }
 
+  // Expanded Full Guide (240px)
   return (
-    <aside id="youtube-sidebar-expanded" className="sticky top-14 left-0 h-[calc(100vh-3.5rem)] w-60 bg-white border-r border-neutral-200 overflow-y-auto p-2 z-30 shrink-0 text-neutral-800">
-      {/* Primary Navigation */}
-      <div className="space-y-1 mb-3">
-        {mainNav.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                isActive ? 'bg-neutral-100 text-neutral-900 font-semibold' : 'hover:bg-neutral-100 text-neutral-700'
-              }`}
-            >
-              <Icon className={`w-5 h-5 mr-4 ${isActive ? 'text-red-600' : 'text-neutral-600'}`} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+    <aside 
+      id="youtube-sidebar-expanded" 
+      className="sticky top-14 left-0 h-[calc(100vh-3.5rem)] w-60 bg-white overflow-y-auto px-3 py-2 z-30 shrink-0 text-[#0f0f0f] select-none text-[14px]"
+    >
+      {/* Section 1: Main */}
+      <div className="space-y-0.5 mb-2">
+        <button
+          onClick={() => setActiveTab('home')}
+          className={`flex items-center w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+            activeTab === 'home' ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
+          }`}
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <YouTubeHomeIcon className="w-6 h-6" filled={activeTab === 'home'} />
+          </div>
+          <span>Home</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('shorts')}
+          className={`flex items-center w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+            activeTab === 'shorts' ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
+          }`}
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <YouTubeShortsLogo className="w-6 h-6" />
+          </div>
+          <span>Shorts</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('subscriptions')}
+          className={`flex items-center w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+            activeTab === 'subscriptions' ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
+          }`}
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <YouTubeSubscriptionsIcon className="w-6 h-6" filled={activeTab === 'subscriptions'} />
+          </div>
+          <span>Subscriptions</span>
+        </button>
       </div>
 
-      <div className="border-t border-neutral-200 my-2" />
+      <div className="border-t border-[#e5e5e5] my-3" />
 
-      {/* You / Library Section */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between px-3 py-1 mb-1">
-          <span className="text-sm font-bold text-neutral-900 flex items-center gap-1">
-            You <ChevronRight className="w-4 h-4 text-neutral-400" />
+      {/* Section 2: You */}
+      <div className="space-y-0.5 mb-2">
+        <button
+          onClick={() => setActiveTab('library')}
+          className="flex items-center justify-between w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-semibold transition-colors cursor-pointer"
+        >
+          <span className="flex items-center gap-2">
+            You <ChevronRight className="w-4 h-4 text-[#606060]" />
           </span>
-        </div>
-        <div className="space-y-0.5">
-          {libraryNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center w-full px-3 py-2 rounded-xl text-sm transition-colors ${
-                  isActive ? 'bg-neutral-100 font-semibold text-neutral-900' : 'hover:bg-neutral-100 text-neutral-700'
-                }`}
-              >
-                <Icon className={`w-5 h-5 mr-4 ${isActive ? 'text-red-600' : 'text-neutral-600'}`} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`flex items-center w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+            activeTab === 'history' ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
+          }`}
+        >
+          <div className="w-6 mr-6 flex items-center justify-center text-[#0f0f0f]">
+            <History className="w-5 h-5" />
+          </div>
+          <span>History</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('library')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center text-[#0f0f0f]">
+            <ListVideo className="w-5 h-5" />
+          </div>
+          <span>Playlists</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('library')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center text-[#0f0f0f]">
+            <PlaySquare className="w-5 h-5" />
+          </div>
+          <span>Your videos</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('library')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center text-[#0f0f0f]">
+            <Clock className="w-5 h-5" />
+          </div>
+          <span>Watch Later</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('liked')}
+          className={`flex items-center w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+            activeTab === 'liked' ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
+          }`}
+        >
+          <div className="w-6 mr-6 flex items-center justify-center text-[#0f0f0f]">
+            <ThumbsUp className="w-5 h-5" />
+          </div>
+          <span>Liked videos</span>
+        </button>
       </div>
 
-      <div className="border-t border-neutral-200 my-2" />
+      <div className="border-t border-[#e5e5e5] my-3" />
 
-      {/* Subscriptions List */}
-      <div className="mb-4">
-        <h3 className="px-3 mb-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+      {/* Section 3: Subscriptions */}
+      <div className="mb-2">
+        <h3 className="px-3 py-1 text-[14px] font-semibold text-[#0f0f0f]">
           Subscriptions
         </h3>
         {subscribedChannels.length === 0 ? (
-          <p className="px-3 text-xs text-neutral-400">No subscriptions yet.</p>
+          <p className="px-3 py-2 text-xs text-[#606060]">No subscriptions yet.</p>
         ) : (
-          <div className="space-y-0.5 max-h-60 overflow-y-auto">
+          <div className="space-y-0.5">
             {subscribedChannels.map((channel) => {
               const isSelected = activeChannelId === channel.id;
               return (
                 <button
                   key={channel.id}
                   onClick={() => onSelectChannel(channel.id)}
-                  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
-                    isSelected ? 'bg-red-50 text-red-700 font-semibold' : 'hover:bg-neutral-100 text-neutral-800'
+                  className={`flex items-center justify-between w-full h-10 px-3 rounded-xl transition-colors cursor-pointer ${
+                    isSelected ? 'bg-[#f2f2f2] font-semibold' : 'hover:bg-[#f2f2f2] font-normal'
                   }`}
                 >
-                  <div className="flex items-center gap-3 truncate">
+                  <div className="flex items-center gap-6 min-w-0">
                     <img
                       src={channel.avatar}
                       alt={channel.name}
                       className="w-6 h-6 rounded-full object-cover shrink-0"
                     />
-                    <span className="truncate">{channel.name}</span>
+                    <span className="truncate text-[14px]">{channel.name}</span>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#065fd4] shrink-0" />
                 </button>
               );
             })}
@@ -170,12 +250,129 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      <div className="border-t border-neutral-200 my-2" />
+      <div className="border-t border-[#e5e5e5] my-3" />
 
-      {/* Footer info */}
-      <div className="px-3 py-2 text-[11px] text-neutral-400 leading-normal space-y-2">
-        <p>About Press Copyright Creators Advertise Developers</p>
-        <p className="font-semibold text-neutral-500">© 2026 YouTube Clone AI Studio</p>
+      {/* Section 4: Explore */}
+      <div className="space-y-0.5 mb-2">
+        <h3 className="px-3 py-1 text-[14px] font-semibold text-[#0f0f0f]">
+          Explore
+        </h3>
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Flame className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Trending</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Music2 className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Music</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Gamepad2 className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Gaming</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Newspaper className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>News</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Trophy className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Sports</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('home')}
+          className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer"
+        >
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Radio className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Podcasts</span>
+        </button>
+      </div>
+
+      <div className="border-t border-[#e5e5e5] my-3" />
+
+      {/* Section 5: Settings & Help */}
+      <div className="space-y-0.5 mb-4">
+        <div className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer">
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Settings className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Settings</span>
+        </div>
+
+        <div className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer">
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <Flag className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Report history</span>
+        </div>
+
+        <div className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer">
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <HelpCircle className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Help</span>
+        </div>
+
+        <div className="flex items-center w-full h-10 px-3 rounded-xl hover:bg-[#f2f2f2] font-normal transition-colors cursor-pointer">
+          <div className="w-6 mr-6 flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-[#0f0f0f]" />
+          </div>
+          <span>Send feedback</span>
+        </div>
+      </div>
+
+      <div className="border-t border-[#e5e5e5] my-3" />
+
+      {/* Authentic YouTube Footer links */}
+      <div className="px-3 py-2 text-[13px] text-[#606060] font-medium leading-relaxed space-y-3">
+        <div className="flex flex-wrap gap-x-2 gap-y-1">
+          <span className="hover:underline cursor-pointer">About</span>
+          <span className="hover:underline cursor-pointer">Press</span>
+          <span className="hover:underline cursor-pointer">Copyright</span>
+          <span className="hover:underline cursor-pointer">Contact us</span>
+          <span className="hover:underline cursor-pointer">Creators</span>
+          <span className="hover:underline cursor-pointer">Advertise</span>
+          <span className="hover:underline cursor-pointer">Developers</span>
+        </div>
+        <div className="flex flex-wrap gap-x-2 gap-y-1">
+          <span className="hover:underline cursor-pointer">Terms</span>
+          <span className="hover:underline cursor-pointer">Privacy</span>
+          <span className="hover:underline cursor-pointer">Policy & Safety</span>
+          <span className="hover:underline cursor-pointer">How YouTube works</span>
+        </div>
+        <p className="text-[12px] text-[#909090] font-normal pt-1">
+          © 2026 Google LLC
+        </p>
       </div>
     </aside>
   );

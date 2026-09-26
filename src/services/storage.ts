@@ -47,7 +47,13 @@ export function getStoredVideos(): Video[] {
     const data = localStorage.getItem(USER_VIDEOS_KEY);
     if (data) {
       const customVideos: Video[] = JSON.parse(data);
-      return [...customVideos, ...INITIAL_VIDEOS];
+      const combined = [...customVideos, ...INITIAL_VIDEOS];
+      const seen = new Set<string>();
+      return combined.filter((v) => {
+        if (seen.has(v.id)) return false;
+        seen.add(v.id);
+        return true;
+      });
     }
   } catch (e) {
     console.error('Failed to parse stored custom videos', e);

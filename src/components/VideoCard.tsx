@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { CheckCircle2, MoreVertical, Clock, Share2, Sparkles, ThumbsUp } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { MoreVertical, Clock, ListPlus, Check, Share2, Ban } from 'lucide-react';
 import { Video } from '../types';
+import { YouTubeVerifiedBadge } from './YouTubeIcons';
 
 interface VideoCardProps {
   video: Video;
@@ -15,51 +16,123 @@ export const VideoCard: React.FC<VideoCardProps> = ({
   onSelectVideo,
   onSelectChannel,
   onToggleWatchLater,
-  isWatchLater
+  isWatchLater = false
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on click outside
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [showMenu]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    // After 650ms of hover, show live muted preview if available
+    hoverTimeoutRef.current = setTimeout(() => {
+      if (video.videoUrl && !video.videoUrl.startsWith('https://www.youtube.com')) {
+        setIsPlayingPreview(true);
+      }
+    }, 650);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setIsPlayingPreview(false);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
 
   return (
     <div 
-      className="group flex flex-col cursor-pointer transition-all duration-200"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group flex flex-col cursor-pointer select-none relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Thumbnail container */}
+      {/* 16:9 Thumbnail Container */}
       <div 
         onClick={() => onSelectVideo(video)}
-        className="relative w-full aspect-video bg-neutral-900 rounded-xl overflow-hidden mb-3 shadow-xs group-hover:shadow-md transition-all"
+        className="relative w-full aspect-video bg-[#0f0f0f] rounded-2xl overflow-hidden mb-3 shadow-2xs group-hover:shadow-md transition-all duration-300"
       >
         <img
           src={video.thumbnailUrl}
           alt={video.title}
           className={`w-full h-full object-cover transition-transform duration-300 ${
-            isHovered ? 'scale-105 opacity-90' : 'scale-100 opacity-100'
+            isHovered ? 'scale-[1.03]' : 'scale-100'
           }`}
+          loading="lazy"
         />
 
-        {/* Video preview simulation on hover if available */}
-        {isHovered && video.videoUrl && (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <span className="px-2.5 py-1 bg-black/70 backdrop-blur-xs text-white text-[11px] font-medium rounded-md flex items-center gap-1.5 shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              Hover Preview
-            </span>
+        {/* Hover Muted Video Preview */}
+        {isPlayingPreview && (
+          <div className="absolute inset-0 z-10 bg-black animate-fadeIn">
+            <video
+              src={video.videoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            {/* Subtle red timeline preview bar */}
+            <div className="absolute bottom-0 inset-x-0 h-1 bg-[#ff0000] animate-pulse" />
           </div>
         )}
 
-        {/* Duration badge */}
-        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/80 text-white text-xs font-semibold rounded-md backdrop-blur-xs">
-          {video.duration}
-        </div>
+        {/* Duration timestamp badge */}
+        {!isPlayingPreview && (
+          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/85 text-white text-[12px] font-semibold rounded-[4px] leading-none tracking-tight">
+            {video.duration}
+          </div>
+        )}
 
-        {/* Category tag */}
-        <div className="absolute top-2 left-2 px-2 py-0.5 bg-neutral-900/80 text-white text-[10px] font-medium rounded-md backdrop-blur-xs uppercase tracking-wider">
-          {video.category}
-        </div>
+        {/* Hover Quick Actions (Watch Later, Add to Queue) */}
+        {isHovered && !showMenu && (
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20 animate-fadeIn">
+            {onToggleWatchLater && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleWatchLater(video.id);
+                }}
+                className={`w-8 h-8 rounded-[4px] bg-black/80 hover:bg-black text-white flex items-center justify-center transition-all cursor-pointer shadow-xs ${
+                  isWatchLater ? 'text-emerald-400 bg-black' : ''
+                }`}
+                title={isWatchLater ? "Added to Watch Later" : "Watch later"}
+              >
+                {isWatchLater ? <Check className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+              </button>
+            )}
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onToggleWatchLater) onToggleWatchLater(video.id);
+              }}
+              className="w-8 h-8 rounded-[4px] bg-black/80 hover:bg-black text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+              title="Add to queue"
+            >
+              <ListPlus className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Video Details */}
+      {/* Video Metadata Row */}
       <div className="flex gap-3 px-0.5">
         {/* Channel Avatar */}
         <button
@@ -67,60 +140,117 @@ export const VideoCard: React.FC<VideoCardProps> = ({
             e.stopPropagation();
             onSelectChannel(video.channel.id);
           }}
-          className="shrink-0 focus:outline-none"
-          title={`View ${video.channel.name}'s channel`}
+          className="shrink-0 focus:outline-none cursor-pointer mt-0.5"
+          title={video.channel.name}
         >
           <img
             src={video.channel.avatar}
             alt={video.channel.name}
-            className="w-9 h-9 rounded-full object-cover border border-neutral-200 hover:ring-2 hover:ring-red-500 transition-all"
+            className="w-9 h-9 rounded-full object-cover ring-1 ring-black/5 hover:opacity-90 transition-opacity"
           />
         </button>
 
-        {/* Title, Channel Name, Views & Upload Time */}
-        <div className="flex-1 min-w-0">
+        {/* Details Column */}
+        <div className="flex-1 min-w-0 pr-1">
+          {/* Video Title */}
           <h3 
             onClick={() => onSelectVideo(video)}
-            className="text-sm font-semibold text-neutral-900 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors mb-1"
+            className="text-[15px] sm:text-[16px] font-semibold leading-[22px] text-[#0f0f0f] line-clamp-2 mb-1 cursor-pointer transition-colors"
+            title={video.title}
           >
             {video.title}
           </h3>
 
+          {/* Channel Name */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onSelectChannel(video.channel.id);
             }}
-            className="flex items-center text-xs text-neutral-600 hover:text-neutral-900 transition-colors mb-0.5"
+            className="flex items-center text-[13px] sm:text-[14px] text-[#606060] hover:text-[#0f0f0f] transition-colors leading-[18px] mb-0.5 cursor-pointer max-w-full"
           >
             <span className="truncate">{video.channel.name}</span>
             {video.channel.verified && (
-              <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-neutral-500 fill-neutral-500 shrink-0" />
+              <span className="ml-1 shrink-0" title="Verified">
+                <YouTubeVerifiedBadge className="w-3.5 h-3.5 text-[#606060]" />
+              </span>
             )}
           </button>
 
-          <div className="flex items-center text-[12px] text-neutral-500 gap-1">
+          {/* View Count & Upload Time */}
+          <div className="text-[13px] sm:text-[14px] text-[#606060] leading-[18px] flex items-center gap-1">
             <span>{video.views}</span>
-            <span>•</span>
+            <span aria-hidden="true" className="text-[10px]">•</span>
             <span>{video.uploadedAt}</span>
           </div>
         </div>
 
-        {/* Action Menu button */}
-        {onToggleWatchLater && (
+        {/* 3-dots Context Menu Button */}
+        <div className="relative shrink-0" ref={menuRef}>
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleWatchLater(video.id);
+              setShowMenu(!showMenu);
             }}
-            className={`p-1.5 rounded-full hover:bg-neutral-100 transition-colors shrink-0 text-neutral-500 ${
-              isWatchLater ? 'text-red-600' : 'opacity-0 group-hover:opacity-100'
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-[#0f0f0f] hover:bg-[#0000001a] transition-all cursor-pointer ${
+              isHovered || showMenu ? 'opacity-100' : 'opacity-0'
             }`}
-            title={isWatchLater ? 'Remove from Watch Later' : 'Save to Watch Later'}
+            title="More options"
           >
-            <Clock className="w-4 h-4" />
+            <MoreVertical className="w-4 h-4" />
           </button>
-        )}
+
+          {/* Authentic YouTube Context Menu Popover */}
+          {showMenu && (
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="absolute right-0 top-8 w-56 bg-white border border-[#e5e5e5] rounded-xl shadow-2xl z-40 py-2 text-[14px] text-[#0f0f0f] animate-scaleIn select-none"
+            >
+              <button
+                onClick={() => {
+                  if (onToggleWatchLater) onToggleWatchLater(video.id);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2.5 flex items-center gap-3.5 hover:bg-[#f2f2f2] text-left transition-colors cursor-pointer"
+              >
+                <Clock className="w-4 h-4 text-[#606060]" />
+                <span>{isWatchLater ? 'Remove from Watch Later' : 'Save to Watch later'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  onSelectChannel(video.channel.id);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2.5 flex items-center gap-3.5 hover:bg-[#f2f2f2] text-left transition-colors cursor-pointer"
+              >
+                <ListPlus className="w-4 h-4 text-[#606060]" />
+                <span>Save to playlist</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + `?v=${video.id}`);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2.5 flex items-center gap-3.5 hover:bg-[#f2f2f2] text-left transition-colors cursor-pointer"
+              >
+                <Share2 className="w-4 h-4 text-[#606060]" />
+                <span>Share</span>
+              </button>
+
+              <div className="my-1 border-t border-[#f2f2f2]" />
+
+              <button
+                onClick={() => setShowMenu(false)}
+                className="w-full px-4 py-2.5 flex items-center gap-3.5 hover:bg-[#f2f2f2] text-left transition-colors cursor-pointer text-[#606060]"
+              >
+                <Ban className="w-4 h-4 text-[#606060]" />
+                <span>Not interested</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

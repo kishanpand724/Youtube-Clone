@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { 
-  CheckCircle2, 
   Bell, 
   Settings, 
-  Edit3, 
   Calendar, 
   Users, 
   Video as VideoIcon, 
   Flame,
-  Globe
+  Globe,
+  SlidersHorizontal,
+  ChevronRight
 } from 'lucide-react';
 import { Channel, Video, UserProfile } from '../types';
 import { VideoCard } from './VideoCard';
+import { YouTubeVerifiedBadge } from './YouTubeIcons';
 
 interface ChannelPageProps {
   channel: Channel;
@@ -38,17 +39,16 @@ export const ChannelPage: React.FC<ChannelPageProps> = ({
   watchLaterVideoIds,
   onOpenProfileSwitcher
 }) => {
-  const [activeTab, setActiveTab] = useState<'videos' | 'shorts' | 'about'>('videos');
+  const [activeTab, setActiveTab] = useState<'videos' | 'shorts' | 'playlists' | 'about'>('videos');
 
   const channelVideos = videos.filter((v) => v.channel.id === channel.id && !v.isShort);
   const channelShorts = videos.filter((v) => v.channel.id === channel.id && v.isShort);
-
   const isUserOwned = channel.id === userProfile.id || channel.isUserOwned;
 
   return (
-    <div id="channel-page-container" className="flex-1 max-w-[1800px] mx-auto w-full pb-10">
-      {/* Banner */}
-      <div className="relative w-full h-40 sm:h-56 md:h-64 bg-neutral-900 overflow-hidden">
+    <div id="channel-page-container" className="flex-1 w-full pb-16 select-none bg-white">
+      {/* Channel Banner */}
+      <div className="relative w-full h-40 sm:h-52 md:h-64 bg-neutral-900 overflow-hidden">
         {channel.banner ? (
           <img
             src={channel.banner}
@@ -56,176 +56,209 @@ export const ChannelPage: React.FC<ChannelPageProps> = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 opacity-80" />
+          <div className="w-full h-full bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700" />
         )}
       </div>
 
-      {/* Header Info */}
-      <div className="px-4 sm:px-8 py-6 border-b border-neutral-200 bg-white">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <img
-              src={channel.avatar}
-              alt={channel.name}
-              className="w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white shadow-md -mt-10 sm:-mt-14 relative z-10 bg-white"
-            />
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 leading-tight">
-                  {channel.name}
-                </h1>
-                {channel.verified && (
-                  <CheckCircle2 className="w-5 h-5 text-neutral-500 fill-neutral-500" />
-                )}
-              </div>
-              <p className="text-xs text-neutral-500 font-medium my-1">
-                {channel.handle} • {channel.subscribers} subscribers • {channelVideos.length} videos
-              </p>
-              <p className="text-xs text-neutral-700 line-clamp-2 max-w-2xl leading-relaxed">
-                {channel.description || 'Welcome to my official YouTube channel! Watch my latest videos and shorts below.'}
-              </p>
-            </div>
-          </div>
+      {/* Channel Header Information */}
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 pt-6">
+        <div className="flex flex-col sm:flex-row items-start gap-6 pb-4">
+          {/* Avatar (128x128) */}
+          <img
+            src={channel.avatar}
+            alt={channel.name}
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover shrink-0"
+          />
 
-          {/* Subscribe or Customize Channel */}
-          <div className="flex items-center gap-3">
-            {isUserOwned ? (
-              <button
-                onClick={onOpenProfileSwitcher}
-                className="px-5 py-2.5 rounded-full text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 transition-colors flex items-center gap-2 shadow-2xs"
-              >
-                <Settings className="w-4 h-4" />
-                <span>Customize Profile / Channel</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => onToggleSubscribe(channel.id)}
-                className={`px-6 py-2.5 rounded-full text-xs font-bold transition-colors flex items-center gap-2 shadow-xs ${
-                  isSubscribed
-                    ? 'bg-neutral-200 hover:bg-neutral-300 text-neutral-800'
-                    : 'bg-red-600 hover:bg-red-700 text-white'
-                }`}
-              >
-                {isSubscribed ? (
-                  <>
-                    <Bell className="w-4 h-4" />
-                    <span>Subscribed</span>
-                  </>
-                ) : (
-                  <span>Subscribe</span>
-                )}
-              </button>
-            )}
+          {/* Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[24px] sm:text-[28px] font-bold text-[#0f0f0f] leading-tight">
+                {channel.name}
+              </h1>
+              {channel.verified && (
+                <YouTubeVerifiedBadge className="w-4 h-4" />
+              )}
+            </div>
+
+            <p className="text-[14px] text-[#606060] font-normal my-1">
+              <span className="font-medium text-[#0f0f0f]">{channel.handle}</span> • {channel.subscribers} subscribers • {channelVideos.length} videos
+            </p>
+
+            <p className="text-[14px] text-[#606060] line-clamp-2 leading-relaxed max-w-2xl mb-3">
+              {channel.description || 'Welcome to the official channel! Subscribe to stay updated with all our latest videos and premieres.'}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 pt-1">
+              {isUserOwned ? (
+                <>
+                  <button
+                    onClick={onOpenProfileSwitcher}
+                    className="px-4 py-2 rounded-full text-[14px] font-medium bg-[#f2f2f2] hover:bg-[#e5e5e5] text-[#0f0f0f] transition-colors cursor-pointer"
+                  >
+                    Customize channel
+                  </button>
+                  <button
+                    onClick={onOpenProfileSwitcher}
+                    className="px-4 py-2 rounded-full text-[14px] font-medium bg-[#f2f2f2] hover:bg-[#e5e5e5] text-[#0f0f0f] transition-colors cursor-pointer"
+                  >
+                    Manage videos
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => onToggleSubscribe(channel.id)}
+                  className={`px-5 py-2 rounded-full text-[14px] font-medium transition-colors flex items-center gap-2 cursor-pointer ${
+                    isSubscribed
+                      ? 'bg-[#f2f2f2] hover:bg-[#e5e5e5] text-[#0f0f0f]'
+                      : 'bg-[#0f0f0f] hover:bg-[#272727] text-white'
+                  }`}
+                >
+                  {isSubscribed ? (
+                    <>
+                      <Bell className="w-4 h-4 text-[#606060]" />
+                      <span>Subscribed</span>
+                    </>
+                  ) : (
+                    <span>Subscribe</span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Channel Tabs */}
-        <div className="flex items-center gap-8 mt-8 border-b border-neutral-200">
+        {/* Channel Navigation Tabs */}
+        <div className="flex items-center gap-8 border-b border-[#e5e5e5] mt-4 text-[14px] font-medium">
           <button
             onClick={() => setActiveTab('videos')}
-            className={`pb-3 text-xs font-bold tracking-wider uppercase border-b-2 transition-colors ${
-              activeTab === 'videos' ? 'border-red-600 text-red-600' : 'border-transparent text-neutral-600 hover:text-neutral-900'
+            className={`pb-3.5 relative transition-colors cursor-pointer ${
+              activeTab === 'videos' ? 'text-[#0f0f0f] font-semibold' : 'text-[#606060] hover:text-[#0f0f0f]'
             }`}
           >
-            Videos ({channelVideos.length})
+            Videos
+            {activeTab === 'videos' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0f0f0f]" />
+            )}
           </button>
+
           <button
             onClick={() => setActiveTab('shorts')}
-            className={`pb-3 text-xs font-bold tracking-wider uppercase border-b-2 transition-colors ${
-              activeTab === 'shorts' ? 'border-red-600 text-red-600' : 'border-transparent text-neutral-600 hover:text-neutral-900'
+            className={`pb-3.5 relative transition-colors cursor-pointer ${
+              activeTab === 'shorts' ? 'text-[#0f0f0f] font-semibold' : 'text-[#606060] hover:text-[#0f0f0f]'
             }`}
           >
-            Shorts ({channelShorts.length})
+            Shorts
+            {activeTab === 'shorts' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0f0f0f]" />
+            )}
           </button>
+
+          <button
+            onClick={() => setActiveTab('playlists')}
+            className={`pb-3.5 relative transition-colors cursor-pointer ${
+              activeTab === 'playlists' ? 'text-[#0f0f0f] font-semibold' : 'text-[#606060] hover:text-[#0f0f0f]'
+            }`}
+          >
+            Playlists
+            {activeTab === 'playlists' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0f0f0f]" />
+            )}
+          </button>
+
           <button
             onClick={() => setActiveTab('about')}
-            className={`pb-3 text-xs font-bold tracking-wider uppercase border-b-2 transition-colors ${
-              activeTab === 'about' ? 'border-red-600 text-red-600' : 'border-transparent text-neutral-600 hover:text-neutral-900'
+            className={`pb-3.5 relative transition-colors cursor-pointer ${
+              activeTab === 'about' ? 'text-[#0f0f0f] font-semibold' : 'text-[#606060] hover:text-[#0f0f0f]'
             }`}
           >
             About
+            {activeTab === 'about' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0f0f0f]" />
+            )}
           </button>
         </div>
-      </div>
 
-      {/* Tab Contents */}
-      <div className="px-4 sm:px-8 py-6">
-        {activeTab === 'videos' && (
-          channelVideos.length === 0 ? (
-            <div className="text-center py-16 text-neutral-500">
-              <VideoIcon className="w-12 h-12 mx-auto mb-2 text-neutral-300" />
-              <p className="text-sm font-semibold">No videos uploaded yet</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
-              {channelVideos.map((video) => (
-                <VideoCard
-                  key={video.id}
-                  video={video}
-                  onSelectVideo={onSelectVideo}
-                  onSelectChannel={onSelectChannel}
-                  onToggleWatchLater={onToggleWatchLater}
-                  isWatchLater={watchLaterVideoIds.includes(video.id)}
-                />
-              ))}
-            </div>
-          )
-        )}
-
-        {activeTab === 'shorts' && (
-          channelShorts.length === 0 ? (
-            <div className="text-center py-16 text-neutral-500">
-              <Flame className="w-12 h-12 mx-auto mb-2 text-neutral-300" />
-              <p className="text-sm font-semibold">No Shorts uploaded yet</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {channelShorts.map((short) => (
-                <div
-                  key={short.id}
-                  onClick={() => onSelectVideo(short)}
-                  className="group cursor-pointer relative aspect-[9/16] bg-neutral-900 rounded-2xl overflow-hidden shadow-md"
-                >
-                  <img
-                    src={short.thumbnailUrl}
-                    alt={short.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+        {/* Tab Content Area */}
+        <div className="pt-6">
+          {activeTab === 'videos' && (
+            channelVideos.length === 0 ? (
+              <div className="text-center py-20 text-[#606060]">
+                <VideoIcon className="w-12 h-12 mx-auto mb-2 text-neutral-300" />
+                <p className="text-[16px] font-medium text-[#0f0f0f]">This channel has no videos.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
+                {channelVideos.map((video) => (
+                  <VideoCard
+                    key={video.id}
+                    video={video}
+                    onSelectVideo={onSelectVideo}
+                    onSelectChannel={onSelectChannel}
+                    onToggleWatchLater={onToggleWatchLater}
+                    isWatchLater={watchLaterVideoIds.includes(video.id)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-3 flex flex-col justify-end">
-                    <p className="text-xs font-semibold text-white line-clamp-2 leading-snug mb-1">{short.title}</p>
-                    <span className="text-[10px] text-neutral-300 font-medium">{short.views}</span>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeTab === 'shorts' && (
+            channelShorts.length === 0 ? (
+              <div className="text-center py-20 text-[#606060]">
+                <Flame className="w-12 h-12 mx-auto mb-2 text-neutral-300" />
+                <p className="text-[16px] font-medium text-[#0f0f0f]">This channel has no Shorts.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {channelShorts.map((short) => (
+                  <div
+                    key={short.id}
+                    onClick={() => onSelectVideo(short)}
+                    className="group cursor-pointer relative aspect-[9/16] bg-neutral-900 rounded-xl overflow-hidden shadow-sm"
+                  >
+                    <img
+                      src={short.thumbnailUrl}
+                      alt={short.title}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-3 flex flex-col justify-end">
+                      <p className="text-[13px] font-medium text-white line-clamp-2 leading-snug mb-1">{short.title}</p>
+                      <span className="text-[11px] text-neutral-300">{short.views}</span>
+                    </div>
                   </div>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeTab === 'about' && (
+            <div className="max-w-2xl bg-white p-6 rounded-2xl border border-[#e5e5e5] space-y-6">
+              <div>
+                <h3 className="text-[16px] font-bold text-[#0f0f0f] mb-2">Description</h3>
+                <p className="text-[14px] text-[#0f0f0f] leading-relaxed whitespace-pre-line">
+                  {channel.description || 'No description available for this channel.'}
+                </p>
+              </div>
+
+              <div className="border-t border-[#e5e5e5] pt-4 space-y-3 text-[14px] text-[#606060]">
+                <div className="flex items-center gap-3">
+                  <Globe className="w-4 h-4 text-[#606060]" />
+                  <span>{channel.handle}</span>
                 </div>
-              ))}
-            </div>
-          )
-        )}
-
-        {activeTab === 'about' && (
-          <div className="max-w-2xl bg-white p-6 rounded-2xl border border-neutral-200 space-y-6">
-            <div>
-              <h3 className="text-sm font-bold text-neutral-900 mb-2 uppercase tracking-wider">Description</h3>
-              <p className="text-xs text-neutral-700 leading-relaxed whitespace-pre-line">
-                {channel.description || 'No channel description provided.'}
-              </p>
-            </div>
-
-            <div className="border-t border-neutral-200 pt-4 space-y-3 text-xs text-neutral-600">
-              <div className="flex items-center gap-3">
-                <Globe className="w-4 h-4 text-neutral-400" />
-                <span>{channel.handle}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-neutral-400" />
-                <span>{channel.subscribers} subscribers</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Calendar className="w-4 h-4 text-neutral-400" />
-                <span>{channel.joinedDate || 'Joined Oct 2023'}</span>
+                <div className="flex items-center gap-3">
+                  <Users className="w-4 h-4 text-[#606060]" />
+                  <span>{channel.subscribers} subscribers</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-[#606060]" />
+                  <span>{channel.joinedDate || 'Joined Jan 2021'}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

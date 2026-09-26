@@ -8,6 +8,7 @@ import { SubscriptionFeed } from './components/SubscriptionFeed';
 import { ChannelPage } from './components/ChannelPage';
 import { UploadModal } from './components/UploadModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { ApiKeyModal } from './components/ApiKeyModal';
 
 import { ActiveTab, Video, Channel, UserProfile, Comment } from './types';
 import { INITIAL_CHANNELS, INITIAL_SHORTS } from './data/mockData';
@@ -21,6 +22,13 @@ import {
   getStoredAccounts,
   saveStoredAccounts
 } from './services/storage';
+import { 
+  checkYoutubeApiStatus, 
+  fetchLivePopularVideos, 
+  fetchLiveSearchVideos, 
+  fetchLiveVideoComments,
+  YoutubeApiStatus 
+} from './services/youtubeApi';
 
 export default function App() {
   // Persistence state
@@ -28,6 +36,7 @@ export default function App() {
   const [videos, setVideos] = useState<Video[]>(getStoredVideos);
   const [comments, setComments] = useState<Record<string, Comment[]>>(getStoredComments);
   const [accounts, setAccounts] = useState<Channel[]>(getStoredAccounts);
+  const [youtubeApiStatus, setYoutubeApiStatus] = useState<YoutubeApiStatus>({ hasKey: false, mode: 'demo_seed_data' });
 
   // Active view navigation
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -42,6 +51,41 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isProfileSwitcherOpen, setIsProfileSwitcherOpen] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+
+  // Function to initialize & sync YouTube API state
+  const refreshYoutubeData = async () => {
+    const status = await checkYoutubeApiStatus();
+    setYoutubeApiStatus(status);
+    if (status.hasKey) {
+      const liveVideos = await fetchLivePopularVideos();
+      if (liveVideos.length > 0) {
+        setVideos((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const newLive = liveVideos.filter((v) => !existingIds.has(v.id));
+          return [...newLive, ...prev];
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    refreshYoutubeData();
+  }, []);
+
+  // Fetch comments when selecting video if YouTube API key is active
+  useEffect(() => {
+    if (selectedVideo && youtubeApiStatus.hasKey && (!comments[selectedVideo.id] || comments[selectedVideo.id].length === 0)) {
+      fetchLiveVideoComments(selectedVideo.id).then((liveComments) => {
+        if (liveComments.length > 0) {
+          setComments((prev) => ({
+            ...prev,
+            [selectedVideo.id]: liveComments
+          }));
+        }
+      });
+    }
+  }, [selectedVideo, youtubeApiStatus.hasKey]);
 
   // Sync state to LocalStorage
   useEffect(() => {
@@ -71,7 +115,6 @@ export default function App() {
 
   const handleSelectVideo = (video: Video) => {
     setSelectedVideo(video);
-    // Add to history if not already top
     if (!userProfile.historyVideoIds.includes(video.id)) {
       setUserProfile((prev) => ({
         ...prev,
@@ -86,12 +129,23 @@ export default function App() {
     setActiveTab('channel');
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setSelectedVideo(null);
     setSelectedChannelId(null);
     setActiveTab('home');
+
+    if (youtubeApiStatus.hasKey) {
+      const liveResults = await fetchLiveSearchVideos(searchQuery);
+      if (liveResults.length > 0) {
+        setVideos((prev) => {
+          const existingIds = new Set(prev.map((v) => v.id));
+          const newLive = liveResults.filter((v) => !existingIds.has(v.id));
+          return [...newLive, ...prev];
+        });
+      }
+    }
   };
 
   // Subscriptions handler
@@ -197,7 +251,6 @@ export default function App() {
 
   const handleUpdateProfile = (updated: Partial<UserProfile>) => {
     setUserProfile((prev) => ({ ...prev, ...updated }));
-    // Also update accounts list
     setAccounts((prev) =>
       prev.map((acc) => (acc.id === userProfile.id ? { ...acc, ...updated } : acc))
     );
@@ -247,6 +300,9 @@ export default function App() {
         onOpenUpload={() => setIsUploadOpen(true)}
         onOpenProfileSwitcher={() => setIsProfileSwitcherOpen(true)}
         onNavigateHome={handleNavigateHome}
+        onSelectChannel={handleSelectChannel}
+        youtubeApiStatus={youtubeApiStatus}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
       />
 
       {/* Main App Layout */}
@@ -342,12 +398,16 @@ export default function App() {
             /* 6. Default Home Video Grid */
             <VideoGrid
               videos={searchedVideos}
+              shorts={INITIAL_SHORTS}
               onSelectVideo={handleSelectVideo}
               onSelectChannel={handleSelectChannel}
               onToggleWatchLater={handleToggleSave}
               watchLaterVideoIds={userProfile.watchLaterVideoIds}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
+              onSelectShort={(short) => {
+                handleSelectVideo(short);
+              }}
             />
           )}
         </main>
@@ -370,6 +430,14 @@ export default function App() {
         onSelectAccount={handleSelectAccount}
         onUpdateProfile={handleUpdateProfile}
         onCreateAccount={handleCreateAccount}
+      />
+
+      {/* API Key Modal */}
+      <ApiKeyModal
+        isOpen={isApiKeyModalOpen}
+        onClose={() => setIsApiKeyModalOpen(false)}
+        onKeySaved={refreshYoutubeData}
+        hasKey={youtubeApiStatus.hasKey}
       />
     </div>
   );

@@ -24,6 +24,117 @@ const getAI = () => {
   });
 };
 
+// Helper to get YouTube API Key from client header or process.env
+const getYoutubeKey = (req: express.Request): string | null => {
+  const clientKey = req.headers['x-youtube-api-key'] as string;
+  if (clientKey && clientKey.trim() && clientKey !== 'MY_YOUTUBE_API_KEY') {
+    return clientKey.trim();
+  }
+  const envKey = process.env.YOUTUBE_API_KEY;
+  if (envKey && envKey.trim() && envKey !== 'MY_YOUTUBE_API_KEY') {
+    return envKey.trim();
+  }
+  return null;
+};
+
+// YouTube API Status
+app.get('/api/youtube/status', (req, res) => {
+  const apiKey = getYoutubeKey(req);
+  const isConfigured = !!apiKey;
+  const clientHeader = req.headers['x-youtube-api-key'] as string;
+  res.json({
+    hasKey: isConfigured,
+    mode: isConfigured ? 'live_youtube_api' : 'demo_seed_data',
+    keySource: clientHeader ? 'client' : (process.env.YOUTUBE_API_KEY ? 'server' : 'none')
+  });
+});
+
+// YouTube API Proxy: Most Popular Videos
+app.get('/api/youtube/popular', async (req, res) => {
+  try {
+    const apiKey = getYoutubeKey(req);
+    if (!apiKey) {
+      return res.status(400).json({ error: 'YouTube API Key is not configured. Set it in Settings or process.env.YOUTUBE_API_KEY.', mode: 'demo' });
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&chart=mostPopular&regionCode=US&maxResults=24&key=${apiKey}`
+    );
+    
+    if (!response.ok) {
+      const errData = await response.json();
+      return res.status(response.status).json({ error: errData.error?.message || 'YouTube API request failed' });
+    }
+
+    const data = await response.json();
+    return res.json(data);
+  } catch (error: any) {
+    console.error('YouTube API Popular Fetch Error:', error);
+    return res.status(500).json({ error: 'Failed to fetch popular YouTube videos' });
+  }
+});
+
+// YouTube API Proxy: Search Videos
+app.get('/api/youtube/search', async (req, res) => {
+  try {
+    const apiKey = getYoutubeKey(req);
+    const query = req.query.q as string;
+
+    if (!query) {
+      return res.status(400).json({ error: 'Query parameter q is required' });
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({ error: 'YouTube API Key is not configured.', mode: 'demo' });
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(query)}&key=${apiKey}`
+    );
+
+    if (!response.ok) {
+      const errData = await response.json();
+      return res.status(response.status).json({ error: errData.error?.message || 'YouTube API search failed' });
+    }
+
+    const data = await response.json();
+    return res.json(data);
+  } catch (error: any) {
+    console.error('YouTube API Search Error:', error);
+    return res.status(500).json({ error: 'Failed to search YouTube videos' });
+  }
+});
+
+// YouTube API Proxy: Comments for Video
+app.get('/api/youtube/comments', async (req, res) => {
+  try {
+    const apiKey = getYoutubeKey(req);
+    const videoId = req.query.videoId as string;
+
+    if (!videoId) {
+      return res.status(400).json({ error: 'videoId parameter is required' });
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({ error: 'YouTube API Key is not configured', mode: 'demo' });
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=20&key=${apiKey}`
+    );
+
+    if (!response.ok) {
+      const errData = await response.json();
+      return res.status(response.status).json({ error: errData.error?.message || 'YouTube API comments failed' });
+    }
+
+    const data = await response.json();
+    return res.json(data);
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+});
+
 // API Endpoint: Generate Title & Description for Uploaded Video
 app.post('/api/ai/describe', async (req, res) => {
   try {

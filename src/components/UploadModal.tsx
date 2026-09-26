@@ -5,9 +5,7 @@ import {
   Sparkles, 
   Image as ImageIcon, 
   Video as VideoIcon, 
-  CheckCircle2, 
-  Tag, 
-  Layers 
+  Film
 } from 'lucide-react';
 import { Video, UserProfile } from '../types';
 import { CATEGORIES } from '../data/mockData';
@@ -64,7 +62,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
   // Call Express Backend API for Gemini Title & SEO Description
   const handleGenerateAiMetadata = async () => {
-    const concept = aiPrompt || title || 'Awesome Web App and AI Tech Guide';
+    const concept = aiPrompt || title || 'Full-Stack Modern App Development';
     setGeneratingAi(true);
     try {
       const res = await fetch('/api/ai/describe', {
@@ -86,10 +84,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         setTagsInput(data.tags.join(', '));
       }
     } catch (e) {
-      console.error(e);
-      setTitle(`Mastering ${concept}: Complete 2026 Tutorial`);
-      setDescription(`In this video, we dive deep into ${concept}. Learn modern tips, code walkthroughs, and practical examples.`);
-      setTagsInput(`${concept.toLowerCase().replace(/\s+/g, '')}, tech, tutorial, 2026`);
+      setTitle(`Mastering ${concept}: Complete Guide`);
+      setDescription(`In this video, we explore ${concept} with real world examples, code walkthroughs, and practical best practices.`);
+      setTagsInput(`${concept.toLowerCase().replace(/\s+/g, '')}, tech, tutorial, youtube`);
     } finally {
       setGeneratingAi(false);
     }
@@ -139,25 +136,25 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-neutral-200 animate-scaleIn my-8">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto select-none">
+      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#e5e5e5] animate-scaleIn my-6">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
+        <div className="flex items-center justify-between pb-3 border-b border-[#e5e5e5]">
           <div className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-red-600" />
-            <h2 className="text-lg font-bold text-neutral-900">Upload Video to Channel</h2>
+            <Film className="w-5 h-5 text-[#ff0000]" />
+            <h2 className="text-[18px] font-bold text-[#0f0f0f]">Upload video</h2>
           </div>
-          <button onClick={onClose} className="p-1 text-neutral-400 hover:text-neutral-700">
+          <button onClick={onClose} className="p-1.5 text-[#606060] hover:text-[#0f0f0f] rounded-full hover:bg-[#f2f2f2] cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* AI Helper Banner */}
-        <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100 rounded-2xl border border-amber-200">
+        <div className="mt-4 p-3.5 bg-[#f8f5ff] rounded-xl border border-purple-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span className="text-[12px] font-semibold text-purple-900">
                 Gemini AI Title & Description Assistant
               </span>
             </div>
@@ -165,33 +162,33 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               type="button"
               onClick={handleGenerateAiMetadata}
               disabled={generatingAi}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-full transition-colors flex items-center gap-1.5 shadow-xs"
+              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-[12px] font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
-              <Sparkles className={`w-3.5 h-3.5 ${generatingAi ? 'animate-spin' : ''}`} />
-              <span>{generatingAi ? 'Writing AI Magic...' : 'Generate Metadata'}</span>
+              <Sparkles className={`w-3 h-3 ${generatingAi ? 'animate-spin' : ''}`} />
+              <span>{generatingAi ? 'Generating...' : 'Auto-Generate'}</span>
             </button>
           </div>
           <input
             type="text"
-            placeholder="Type video concept or topic (e.g. 'Build a React dashboard with AI')..."
+            placeholder="Type video concept or topic (e.g. 'Build a React AI Dashboard')..."
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            className="w-full text-xs bg-white border border-amber-200 rounded-xl px-3 py-2 text-neutral-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="w-full text-[13px] bg-white border border-purple-200 rounded-lg px-3 py-1.5 text-[#0f0f0f] focus:outline-none focus:border-purple-600"
           />
         </div>
 
-        {/* AI Title Suggestions Pills */}
+        {/* AI Title Suggestions */}
         {aiSuggestions.length > 0 && (
           <div className="mt-2 space-y-1">
-            <span className="text-[11px] font-semibold text-neutral-600">Suggested Viral Titles:</span>
-            <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-medium text-[#606060]">Suggested Titles:</span>
+            <div className="flex flex-col gap-1">
               {aiSuggestions.map((t, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setTitle(t)}
-                  className={`text-xs text-left px-3 py-1.5 rounded-lg border transition-all ${
-                    title === t ? 'bg-red-50 border-red-500 font-semibold text-red-700' : 'bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-800'
+                  className={`text-[12px] text-left px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+                    title === t ? 'bg-red-50 border-red-500 font-semibold text-red-700' : 'bg-neutral-50 hover:bg-neutral-100 border-[#e5e5e5] text-[#0f0f0f]'
                   }`}
                 >
                   {t}
@@ -201,77 +198,77 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-[13px]">
           {/* File Upload Box */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-neutral-900 mb-1">Video File (MP4/WebM)</label>
-              <div className="border-2 border-dashed border-neutral-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-neutral-50 transition-colors relative">
+              <label className="block font-medium text-[#0f0f0f] mb-1">Video File (MP4/WebM)</label>
+              <div className="border-2 border-dashed border-[#ccc] hover:border-[#065fd4] rounded-xl p-4 text-center cursor-pointer bg-[#fafafa] transition-colors relative">
                 <input
                   type="file"
                   accept="video/*"
                   onChange={handleVideoFileChange}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <VideoIcon className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                <span className="font-semibold text-neutral-700 block">
-                  {videoFile ? videoFile.name : 'Click or drop video file'}
+                <VideoIcon className="w-7 h-7 text-[#606060] mx-auto mb-1.5" />
+                <span className="font-medium text-[#0f0f0f] block text-[13px]">
+                  {videoFile ? videoFile.name : 'Select or drag video'}
                 </span>
-                <span className="text-[10px] text-neutral-400">Default fallback sample provided if empty</span>
+                <span className="text-[11px] text-[#606060]">Pre-loaded demo video included</span>
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-neutral-900 mb-1">Thumbnail Cover</label>
-              <div className="border-2 border-dashed border-neutral-300 hover:border-red-500 rounded-2xl p-4 text-center cursor-pointer bg-neutral-50 transition-colors relative">
+              <label className="block font-medium text-[#0f0f0f] mb-1">Thumbnail Cover</label>
+              <div className="border-2 border-dashed border-[#ccc] hover:border-[#065fd4] rounded-xl p-4 text-center cursor-pointer bg-[#fafafa] transition-colors relative">
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleThumbnailFileChange}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <ImageIcon className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                <span className="font-semibold text-neutral-700 block">
-                  {thumbnailUrl ? 'Custom Image Loaded' : 'Upload Thumbnail Image'}
+                <ImageIcon className="w-7 h-7 text-[#606060] mx-auto mb-1.5" />
+                <span className="font-medium text-[#0f0f0f] block text-[13px]">
+                  {thumbnailUrl ? 'Custom Image Selected' : 'Upload Thumbnail Image'}
                 </span>
-                <span className="text-[10px] text-neutral-400">JPG or PNG image file</span>
+                <span className="text-[11px] text-[#606060]">16:9 ratio recommended</span>
               </div>
             </div>
           </div>
 
           {/* Title */}
           <div>
-            <label className="block font-bold text-neutral-900 mb-1">Video Title *</label>
+            <label className="block font-medium text-[#0f0f0f] mb-1">Title (required)</label>
             <input
               type="text"
               required
-              placeholder="Add a title that describes your video..."
+              placeholder="Add a title that describes your video"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-xl focus:border-red-600 focus:outline-none text-neutral-900"
+              className="w-full px-3 py-2 border border-[#ccc] rounded-lg focus:border-[#065fd4] focus:outline-none text-[#0f0f0f]"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block font-bold text-neutral-900 mb-1">Description</label>
+            <label className="block font-medium text-[#0f0f0f] mb-1">Description</label>
             <textarea
-              rows={4}
-              placeholder="Tell viewers about your video..."
+              rows={3}
+              placeholder="Tell viewers about your video"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-xl focus:border-red-600 focus:outline-none text-neutral-900"
+              className="w-full px-3 py-2 border border-[#ccc] rounded-lg focus:border-[#065fd4] focus:outline-none text-[#0f0f0f]"
             />
           </div>
 
           {/* Category & Format */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-bold text-neutral-900 mb-1">Category</label>
+              <label className="block font-medium text-[#0f0f0f] mb-1">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-xl focus:border-red-600 focus:outline-none text-neutral-900 bg-white"
+                className="w-full px-3 py-2 border border-[#ccc] rounded-lg focus:border-[#065fd4] focus:outline-none text-[#0f0f0f] bg-white cursor-pointer"
               >
                 {CATEGORIES.filter((c) => c !== 'All').map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -280,27 +277,27 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-neutral-900 mb-1">Format Type</label>
+              <label className="block font-medium text-[#0f0f0f] mb-1">Format Type</label>
               <div className="flex items-center gap-4 mt-2">
-                <label className="flex items-center gap-1.5 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="videoFormat"
                     checked={!isShort}
                     onChange={() => setIsShort(false)}
-                    className="accent-red-600"
+                    className="accent-[#065fd4]"
                   />
-                  <span className="font-medium text-neutral-800">Standard Video</span>
+                  <span className="font-medium text-[#0f0f0f]">Standard Video</span>
                 </label>
-                <label className="flex items-center gap-1.5 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
                     name="videoFormat"
                     checked={isShort}
                     onChange={() => setIsShort(true)}
-                    className="accent-red-600"
+                    className="accent-[#065fd4]"
                   />
-                  <span className="font-medium text-neutral-800">YouTube Short</span>
+                  <span className="font-medium text-[#0f0f0f]">YouTube Short</span>
                 </label>
               </div>
             </div>
@@ -308,30 +305,30 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
           {/* Tags */}
           <div>
-            <label className="block font-bold text-neutral-900 mb-1">Tags (Comma separated)</label>
+            <label className="block font-medium text-[#0f0f0f] mb-1">Tags (Comma separated)</label>
             <input
               type="text"
-              placeholder="e.g. react, ai, tutorial, coding"
+              placeholder="e.g. react, ai, coding, tutorial"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-xl focus:border-red-600 focus:outline-none text-neutral-900"
+              className="w-full px-3 py-2 border border-[#ccc] rounded-lg focus:border-[#065fd4] focus:outline-none text-[#0f0f0f]"
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+          <div className="flex justify-end gap-3 pt-3 border-t border-[#e5e5e5]">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-full font-semibold text-neutral-700 hover:bg-neutral-100 transition-colors"
+              className="px-4 py-2 rounded-full font-medium text-[#0f0f0f] hover:bg-[#f2f2f2] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-full font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-xs"
+              className="px-5 py-2 rounded-full font-medium text-white bg-[#065fd4] hover:bg-[#004fc4] transition-colors cursor-pointer shadow-xs"
             >
-              Publish Video
+              Publish
             </button>
           </div>
         </form>

@@ -60,6 +60,18 @@ export const INITIAL_CHANNELS: Channel[] = [
     verified: false,
     description: 'Delicious artisan recipes, masterchef techniques, and quick 15-minute weeknight dinners.',
     joinedDate: 'Sep 18, 2021'
+  },
+  {
+    id: 'ch_space',
+    name: 'Cosmos & Beyond',
+    handle: '@cosmosbeyond',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    banner: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80',
+    subscribers: '1.8M',
+    subscriberCount: 1800000,
+    verified: true,
+    description: 'Astrophysics, James Webb discoveries, planetary exploration, and mysteries of the universe.',
+    joinedDate: 'Feb 12, 2018'
   }
 ];
 
@@ -199,6 +211,74 @@ export const INITIAL_VIDEOS: Video[] = [
     likes: 115000,
     dislikes: 800,
     isLiked: false
+  },
+  {
+    id: 'vid_9',
+    title: 'Deep Space Mysteries: James Webb Just Found Something Impossible',
+    description: 'Deep field observations from the James Webb Space Telescope have revealed massive galaxies in the early cosmic dawn that defy conventional astrophysical formation models.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop&q=80',
+    duration: '21:10',
+    views: '2.1M views',
+    viewCount: 2100000,
+    uploadedAt: '6 days ago',
+    category: 'Tech',
+    tags: ['space', 'astronomy', 'jwst', 'cosmos'],
+    channel: INITIAL_CHANNELS[5],
+    likes: 154000,
+    dislikes: 890,
+    isLiked: false
+  },
+  {
+    id: 'vid_10',
+    title: 'Coffee Science: Dialing in Espresso with a World Barista Champion',
+    description: 'Grind distribution, water chemistry, pre-infusion pressure profiling, and extraction yields. Everything you need to craft café-quality espresso at home.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80',
+    duration: '15:42',
+    views: '730K views',
+    viewCount: 730000,
+    uploadedAt: '4 days ago',
+    category: 'Cooking',
+    tags: ['coffee', 'espresso', 'barista', 'guide'],
+    channel: INITIAL_CHANNELS[4],
+    likes: 58000,
+    dislikes: 310,
+    isLiked: false
+  },
+  {
+    id: 'vid_11',
+    title: 'Next.js 15 & React 19 Full Course - Server Actions, Turbopack & Caching',
+    description: 'A complete end-to-end masterclass on Next.js 15, asynchronous request APIs, React 19 Server Components, and optimistic UI mutations.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80',
+    duration: '38:12',
+    views: '410K views',
+    viewCount: 410000,
+    uploadedAt: '1 week ago',
+    category: 'Coding',
+    tags: ['nextjs', 'react19', 'webdev', 'typescript'],
+    channel: INITIAL_CHANNELS[1],
+    likes: 39000,
+    dislikes: 240,
+    isLiked: false
+  },
+  {
+    id: 'vid_12',
+    title: 'Why Sony’s New Flagship Camera Sensor Changes Filmmaking Forever',
+    description: 'Global shutter, 16 stops of dynamic range, and internal 8K raw. Hands-on field testing on a dynamic cinema production in Iceland.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop&q=80',
+    duration: '17:05',
+    views: '840K views',
+    viewCount: 840000,
+    uploadedAt: '3 weeks ago',
+    category: 'Tech',
+    tags: ['camera', 'cinematography', 'sony', 'gear'],
+    channel: INITIAL_CHANNELS[0],
+    likes: 62000,
+    dislikes: 420,
+    isLiked: false
   }
 ];
 
@@ -252,6 +332,40 @@ export const INITIAL_SHORTS: Video[] = [
     channel: INITIAL_CHANNELS[4],
     likes: 87000,
     dislikes: 430,
+    isShort: true
+  },
+  {
+    id: 'short_4',
+    title: 'Can you guess this retro sound? 🎶 #shorts #nostalgia',
+    description: 'Only 90s kids will recognize this startup sound instantly.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyances.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80',
+    duration: '0:20',
+    views: '3.1M views',
+    viewCount: 3100000,
+    uploadedAt: '5 days ago',
+    category: 'Music',
+    tags: ['shorts', 'music'],
+    channel: INITIAL_CHANNELS[3],
+    likes: 310000,
+    dislikes: 1400,
+    isShort: true
+  },
+  {
+    id: 'short_5',
+    title: 'What Happens When Black Holes Collide? 🌌 #shorts #space',
+    description: 'Gravitational waves rippling through spacetime at the speed of light.',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop&q=80',
+    duration: '0:35',
+    views: '4.6M views',
+    viewCount: 4600000,
+    uploadedAt: '1 week ago',
+    category: 'Tech',
+    tags: ['shorts', 'astronomy'],
+    channel: INITIAL_CHANNELS[5],
+    likes: 420000,
+    dislikes: 2100,
     isShort: true
   }
 ];
